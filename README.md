@@ -26,5 +26,5 @@
 Run the exe file and settings.json will be created in same directory as the launcher. Insert FTP and webhooks details and run the launcher again.
 
 - Added local or ftp option in new release.
-- Compile the bot.py using PyInstaller if you don't trust the release file. (python -m PyInstaller "ChatBot.py" --onefile)
+- Compile the chatbot.py using PyInstaller if you don't trust the release file. (python -m PyInstaller "chatbot.py" --onefile)
   
