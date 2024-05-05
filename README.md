@@ -19,7 +19,7 @@
 ╚█████╔╝██║░░██║██║░░██║░░░██║░░░██████╦╝╚█████╔╝░░░██║░░░
 ░╚════╝░╚═╝░░╚═╝╚═╝░░╚═╝░░░╚═╝░░░╚═════╝░░╚════╝░░░░╚═╝░░░
 
-# Read TheIsle.log file using FTP and send Discord Webhooks
+# Read TheIsle.log file using FTP or local filesystem and send Discord Webhooks
 
 Run the exe file and settings.json will be created in same directory as the launcher. Insert FTP and webhooks details and run the launcher again.
 
