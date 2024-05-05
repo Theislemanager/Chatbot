@@ -21,6 +21,8 @@
 
 # Read TheIsle.log file using FTP or local filesystem and send Discord Webhooks
 
+## This works for Legacy and Evrima branch
+
 Run the exe file and settings.json will be created in same directory as the launcher. Insert FTP and webhooks details and run the launcher again.
 
 - Added local or ftp option in new release.
