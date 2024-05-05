@@ -21,6 +21,7 @@ def load_settings():
 
         if not os.path.exists(settings_file):
             default_settings = {
+                # Run as administrator so the exe has access to read TheIsle.log. Use local option if running the program on same host as server.
                 "source": "local",  # Default source set to local other option is ftp. Choose either "local" or "ftp"
                 "local_path": "/path/to/log/files/TheIsle.log",  
                 "ftp": {
