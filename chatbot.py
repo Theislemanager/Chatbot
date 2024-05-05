@@ -32,7 +32,8 @@ def load_settings():
                     "filename": "TheIsle.log",
                     "passive": True
                 },
-                "discord_webhook_url": "https://discord.com/api/webhooks/your_webhook_id/your_webhook_token"
+                "discord_webhook_url": "https://discord.com/api/webhooks/your_webhook_id/your_webhook_token",
+                "refresh": "1" # How often to check the log in seconds
             }
 
             with open(settings_file, "w") as f:
@@ -128,7 +129,7 @@ def main():
                     last_sent_line = log_line  
         else:
             print(f"Failed to fetch the log line from {filename}.")
-        time.sleep(1) 
+        time.sleep(settings["refresh"]) 
 
 if __name__ == "__main__":
     main()
