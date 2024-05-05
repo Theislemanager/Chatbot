@@ -122,7 +122,7 @@ def main():
     while True:
         log_line = fetch_log_file(settings, last_position)
         if log_line:
-            if '[Spatial]' in log_line or '(Global)' in log_line or '(Local)' in log_line or '(Group-' in log_line:
+            if 'LogTheIsleChatData:' in log_line or 'LogIChat:' in log_line:
                 if log_line != last_sent_line:
                     send_discord_webhook(discord_webhook_url, log_line)
                     last_sent_line = log_line  
