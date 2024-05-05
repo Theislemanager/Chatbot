@@ -33,7 +33,7 @@ def load_settings():
                     "passive": True
                 },
                 "discord_webhook_url": "https://discord.com/api/webhooks/your_webhook_id/your_webhook_token",
-                "refresh": "1" # How often to check the log in seconds
+                "refresh_rate": 1 # Select the refresh rate for checking log file
             }
 
             with open(settings_file, "w") as f:
@@ -117,6 +117,7 @@ def main():
     source = settings["source"]
     filename = settings["local_path"]
     discord_webhook_url = settings["discord_webhook_url"]
+    refresh_rate = settings.get("refresh_rate", 1) 
     last_position = {} 
     last_sent_line = None  
 
@@ -129,7 +130,7 @@ def main():
                     last_sent_line = log_line  
         else:
             print(f"Failed to fetch the log line from {filename}.")
-        time.sleep(settings["refresh"]) 
+        time.sleep(refresh_rate)
 
 if __name__ == "__main__":
     main()
