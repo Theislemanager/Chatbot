@@ -6,35 +6,6 @@ import json
 import time
 import re
 
-
-print(r"""
-
-████████╗██╗░░██╗███████╗  ██╗░██████╗██╗░░░░░███████╗
-╚══██╔══╝██║░░██║██╔════╝  ██║██╔════╝██║░░░░░██╔════╝
-░░░██║░░░███████║█████╗░░  ██║╚█████╗░██║░░░░░█████╗░░
-░░░██║░░░██╔══██║██╔══╝░░  ██║░╚═══██╗██║░░░░░██╔══╝░░
-░░░██║░░░██║░░██║███████╗  ██║██████╔╝███████╗███████╗
-░░░╚═╝░░░╚═╝░░╚═╝╚══════╝  ╚═╝╚═════╝░╚══════╝╚══════╝
-
-███╗░░░███╗░█████╗░███╗░░██╗░█████╗░░██████╗░███████╗██████╗░  
-████╗░████║██╔══██╗████╗░██║██╔══██╗██╔════╝░██╔════╝██╔══██╗  
-██╔████╔██║███████║██╔██╗██║███████║██║░░██╗░█████╗░░██████╔╝  
-██║╚██╔╝██║██╔══██║██║╚████║██╔══██║██║░░╚██╗██╔══╝░░██╔══██╗  
-██║░╚═╝░██║██║░░██║██║░╚███║██║░░██║╚██████╔╝███████╗██║░░██║  
-╚═╝░░░░░╚═╝╚═╝░░╚═╝╚═╝░░╚══╝╚═╝░░╚═╝░╚═════╝░╚══════╝╚═╝░░╚═╝  
-
-░█████╗░██╗░░██╗░█████╗░████████╗██████╗░░█████╗░████████╗
-██╔══██╗██║░░██║██╔══██╗╚══██╔══╝██╔══██╗██╔══██╗╚══██╔══╝
-██║░░╚═╝███████║███████║░░░██║░░░██████╦╝██║░░██║░░░██║░░░
-██║░░██╗██╔══██║██╔══██║░░░██║░░░██╔══██╗██║░░██║░░░██║░░░
-╚█████╔╝██║░░██║██║░░██║░░░██║░░░██████╦╝╚█████╔╝░░░██║░░░
-░╚════╝░╚═╝░░╚═╝╚═╝░░╚═╝░░░╚═╝░░░╚═════╝░░╚════╝░░░░╚═╝░░░
-""")
-
-def resource_path(relative_path):
-    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(base_path, relative_path)
-
 def load_settings():
     try:
         if getattr(sys, 'frozen', False):
@@ -50,13 +21,15 @@ def load_settings():
 
         if not os.path.exists(settings_file):
             default_settings = {
+                "source": "local",  # Default source set to local other option is ftp. Choose either "local" or "ftp"
+                "local_path": "/path/to/log/files/TheIsle.log",  
                 "ftp": {
                     "host": "example.com",
                     "username": "ftp_user",
                     "password": "ftp_password",
                     "remote_path": "/path/to/log/files",
                     "filename": "TheIsle.log",
-                    "passive": "True"
+                    "passive": True
                 },
                 "discord_webhook_url": "https://discord.com/api/webhooks/your_webhook_id/your_webhook_token"
             }
@@ -71,42 +44,54 @@ def load_settings():
         print("Error:", e)
         return None
 
-def fetch_log_file(ftp_settings, last_position):
+
+def fetch_log_file(settings, last_position):
     try:
-        ftp = ftplib.FTP()
-        ftp.connect(ftp_settings["host"])
-        ftp.login(ftp_settings["username"], ftp_settings["password"])
-        ftp.cwd(ftp_settings["remote_path"])
-        ftp.set_pasv(ftp_settings["passive"])  
-        filename = ftp_settings["filename"]
-        if filename not in ftp.nlst():
-            print(f"File {filename} does not exist in the remote directory.")
-            return None
-        local_filename = os.path.join(os.getcwd(), filename)
-        if last_position.get(filename):
-            ftp.sendcmd("TYPE I")
-            filesize = ftp.size(filename)
-            if filesize > last_position[filename]:
-                with open(local_filename, "wb") as file:
-                    ftp.retrbinary("RETR " + filename, file.write)
-                with open(local_filename, "r", encoding="utf8") as file:
-                    lines = file.readlines()
-                    last_line = lines[-1].strip() if lines else None
-                    return last_line
-            else:
+        if settings["source"] == "local":
+            filename = settings["local_path"]
+            if not os.path.exists(filename):
+                print(f"File {filename} does not exist.")
                 return None
-        else:
-            with open(local_filename, "wb") as file:
-                ftp.retrbinary("RETR " + filename, file.write)
-            with open(local_filename, "r", encoding="utf8") as file:
+            with open(filename, "r", encoding="utf-8") as file:
                 lines = file.readlines()
                 last_line = lines[-1].strip() if lines else None
                 return last_line
+        elif settings["source"] == "ftp":
+            ftp_settings = settings["ftp"]
+            ftp = ftplib.FTP()
+            ftp.connect(ftp_settings["host"])
+            ftp.login(ftp_settings["username"], ftp_settings["password"])
+            ftp.cwd(ftp_settings["remote_path"])
+            ftp.set_pasv(ftp_settings["passive"])  
+            filename = ftp_settings["filename"]
+            if filename not in ftp.nlst():
+                print(f"File {filename} does not exist in the remote directory.")
+                return None
+            local_filename = os.path.join(os.getcwd(), filename)
+            if last_position.get(filename):
+                ftp.sendcmd("TYPE I")
+                filesize = ftp.size(filename)
+                if filesize > last_position[filename]:
+                    with open(local_filename, "wb") as file:
+                        ftp.retrbinary("RETR " + filename, file.write)
+                    with open(local_filename, "r", encoding="utf-8") as file:
+                        lines = file.readlines()
+                        last_line = lines[-1].strip() if lines else None
+                        return last_line
+                else:
+                    return None
+            else:
+                with open(local_filename, "wb") as file:
+                    ftp.retrbinary("RETR " + filename, file.write)
+                with open(local_filename, "r", encoding="utf-8") as file:
+                    lines = file.readlines()
+                    last_line = lines[-1].strip() if lines else None
+                    return last_line
     except Exception as e:
         print("Error:", e)
         return None
     finally:
-        if ftp:
+        if 'ftp' in locals():
             ftp.quit()
 
 def send_discord_webhook(webhook_url, message):
@@ -117,33 +102,32 @@ def send_discord_webhook(webhook_url, message):
 def print_settings(settings):
     print("Settings:")
     for key, value in settings.items():
-        if key == "ftp":
-            print("FTP:")
-            for ftp_key, ftp_value in value.items():
-                print(f"  {ftp_key}: {ftp_value}")
+        if isinstance(value, dict):
+            print(f"{key}:")
+            for sub_key, sub_value in value.items():
+                print(f"  {sub_key}: {sub_value}")
         else:
             print(f"{key}: {value}")
 
 def main():
     settings = load_settings()
     print_settings(settings)
-    ftp_settings = settings["ftp"]
+    source = settings["source"]
+    filename = settings["local_path"]
     discord_webhook_url = settings["discord_webhook_url"]
     last_position = {} 
     last_sent_line = None  
 
     while True:
-        log_line = fetch_log_file(ftp_settings, last_position)
+        log_line = fetch_log_file(settings, last_position)
         if log_line:
             if '[Spatial]' in log_line or '(Global)' in log_line or '(Local)' in log_line or '(Group-' in log_line:
-            
                 if log_line != last_sent_line:
                     send_discord_webhook(discord_webhook_url, log_line)
                     last_sent_line = log_line  
         else:
-            print("Failed to fetch the log line from FTP.")
+            print(f"Failed to fetch the log line from {filename}.")
         time.sleep(1) 
-
 
 if __name__ == "__main__":
     main()
