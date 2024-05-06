@@ -27,6 +27,8 @@ print(r"""
 ██║░░██╗██╔══██║██╔══██║░░░██║░░░██╔══██╗██║░░██║░░░██║░░░
 ╚█████╔╝██║░░██║██║░░██║░░░██║░░░██████╦╝╚█████╔╝░░░██║░░░
 ░╚════╝░╚═╝░░╚═╝╚═╝░░╚═╝░░░╚═╝░░░╚═════╝░░╚════╝░░░░╚═╝░░░
+      
+Select "local" or "ftp" in source field
 """)
 
 def load_settings():
@@ -56,7 +58,13 @@ def load_settings():
                     "passive": True
                 },
                 "discord_webhook_url": "https://discord.com/api/webhooks/your_webhook_id/your_webhook_token",
-                "refresh_rate": 1 # Select the refresh rate for checking log file
+                "refresh_rate": 1, # Select the refresh rate for checking log file
+                "capture_patterns": 
+                [
+                "LogTheIsleChatData:",
+                "LogIChat:",
+                "LogTheIsleCommandData:"
+                ]
             }
 
             with open(settings_file, "w") as f:
@@ -140,17 +148,20 @@ def main():
     source = settings["source"]
     filename = settings["local_path"]
     discord_webhook_url = settings["discord_webhook_url"]
-    refresh_rate = settings.get("refresh_rate", 1) 
+    refresh_rate = settings.get("refresh_rate", 1)
+    capture_patterns = settings.get("capture_patterns", []) 
     last_position = {} 
     last_sent_line = None  
 
     while True:
         log_line = fetch_log_file(settings, last_position)
         if log_line:
-            if 'LogTheIsleChatData:' in log_line or 'LogIChat:' in log_line:
-                if log_line != last_sent_line:
-                    send_discord_webhook(discord_webhook_url, log_line)
-                    last_sent_line = log_line  
+            for pattern in capture_patterns:
+                if pattern in log_line:
+                    if log_line != last_sent_line:
+                        send_discord_webhook(discord_webhook_url, log_line)
+                        last_sent_line = log_line  
+                    break
         else:
             print(f"Failed to fetch the log line from {filename}.")
         time.sleep(refresh_rate)
