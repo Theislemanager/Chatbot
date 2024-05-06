@@ -158,9 +158,11 @@ def main():
         if log_line:
             for pattern in capture_patterns:
                 if pattern in log_line:
-                    if log_line != last_sent_line:
-                        send_discord_webhook(discord_webhook_url, log_line)
-                        last_sent_line = log_line  
+                    log_line_without_timestamp = re.sub(r'\[\d{4}\.\d{2}\.\d{2}-\d{2}\.\d{2}\.\d{2}:\d{3}\]\[\d+\]', '', log_line)
+                    log_line_without_verbose = log_line_without_timestamp.replace("Verbose: ", "")
+                    if log_line_without_verbose != last_sent_line:
+                        send_discord_webhook(discord_webhook_url, log_line_without_verbose)
+                        last_sent_line = log_line_without_verbose
                     break
         else:
             print(f"Failed to fetch the log line from {filename}.")
