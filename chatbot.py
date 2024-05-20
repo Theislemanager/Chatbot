@@ -27,7 +27,7 @@ print(r"""
 ██║░░██╗██╔══██║██╔══██║░░░██║░░░██╔══██╗██║░░██║░░░██║░░░
 ╚█████╔╝██║░░██║██║░░██║░░░██║░░░██████╦╝╚█████╔╝░░░██║░░░
 ░╚════╝░╚═╝░░╚═╝╚═╝░░╚═╝░░░╚═╝░░░╚═════╝░░╚════╝░░░░╚═╝░░░
-      
+
 Select "local" or "ftp" in source field
 """)
 
@@ -46,11 +46,11 @@ def load_settings():
 
         if not os.path.exists(settings_file):
             default_settings = {
-                # Use local option if running the program on same host as server.
                 "source": "local",  # Default source set to local other option is ftp. Choose either "local" or "ftp"
                 "local_path": "/path/to/log/files/TheIsle.log",  
                 "ftp": {
                     "host": "example.com",
+                    "port": 21,
                     "username": "ftp_user",
                     "password": "ftp_password",
                     "remote_path": "/path/to/log/files",
@@ -59,11 +59,10 @@ def load_settings():
                 },
                 "discord_webhook_url": "https://discord.com/api/webhooks/your_webhook_id/your_webhook_token",
                 "refresh_rate": 1, # Select the refresh rate for checking log file
-                "capture_patterns": 
-                [
-                "LogTheIsleChatData:",
-                "LogIChat:",
-                "LogTheIsleCommandData:"
+                "capture_patterns": [
+                    "LogTheIsleChatData:",
+                    "LogIChat:",
+                    "LogTheIsleCommandData:"
                 ]
             }
 
@@ -76,7 +75,6 @@ def load_settings():
     except Exception as e:
         print("Error:", e)
         return None
-
 
 def fetch_log_file(settings, last_position):
     try:
@@ -92,7 +90,7 @@ def fetch_log_file(settings, last_position):
         elif settings["source"] == "ftp":
             ftp_settings = settings["ftp"]
             ftp = ftplib.FTP()
-            ftp.connect(ftp_settings["host"])
+            ftp.connect(ftp_settings["host"], ftp_settings.get("port", 21))
             ftp.login(ftp_settings["username"], ftp_settings["password"])
             ftp.cwd(ftp_settings["remote_path"])
             ftp.set_pasv(ftp_settings["passive"])  
