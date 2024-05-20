@@ -95,29 +95,17 @@ def fetch_log_file(settings, last_position):
             ftp.cwd(ftp_settings["remote_path"])
             ftp.set_pasv(ftp_settings["passive"])  
             filename = ftp_settings["filename"]
-            if filename not in ftp.nlst():
-                print(f"File {filename} does not exist in the remote directory.")
-                return None
             local_filename = os.path.join(os.getcwd(), filename)
-            if last_position.get(filename):
-                ftp.sendcmd("TYPE I")
-                filesize = ftp.size(filename)
-                if filesize > last_position[filename]:
-                    with open(local_filename, "wb") as file:
-                        ftp.retrbinary("RETR " + filename, file.write)
-                    with open(local_filename, "r", encoding="utf-8") as file:
-                        lines = file.readlines()
-                        last_line = lines[-1].strip() if lines else None
-                        return last_line
-                else:
-                    return None
-            else:
+            try:
                 with open(local_filename, "wb") as file:
                     ftp.retrbinary("RETR " + filename, file.write)
                 with open(local_filename, "r", encoding="utf-8") as file:
                     lines = file.readlines()
                     last_line = lines[-1].strip() if lines else None
                     return last_line
+            except ftplib.error_perm as e:
+                print(f"Failed to retrieve the file: {e}")
+                return None
     except Exception as e:
         print("Error:", e)
         return None
