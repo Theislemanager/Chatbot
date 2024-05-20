@@ -35,6 +35,7 @@ Run the exe file and settings.json will be created in same directory as the laun
                 "local_path": "/path/to/log/files/TheIsle.log",  
                 "ftp": {
                     "host": "example.com",
+                    "port": 21,
                     "username": "ftp_user",
                     "password": "ftp_password",
                     "remote_path": "/path/to/log/files",
