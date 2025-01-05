@@ -29,9 +29,8 @@ Run the exe file and settings.json will be created in same directory as the laun
 - Compile the chatbot.py using PyInstaller if you don't trust the release file. (python -m PyInstaller "chatbot.py" --onefile)
   
 ```
-              default_settings = {
-                 # Use local option if running the program on same host as server.
-                "source": "local",  # Default source set to local other option is ftp. Choose either "local" or "ftp"
+default_settings = {
+                "source": "local",
                 "local_path": "/path/to/log/files/TheIsle.log",  
                 "ftp": {
                     "host": "example.com",
@@ -42,13 +41,24 @@ Run the exe file and settings.json will be created in same directory as the laun
                     "filename": "TheIsle.log",
                     "passive": True
                 },
-                "discord_webhook_url": "https://discord.com/api/webhooks/your_webhook_id/your_webhook_token",
-                "refresh_rate": 1, # Select the refresh rate for checking log file
-                "capture_patterns": 
-                [
-                "LogTheIsleChatData:", # Captures Evrima Chat
-                "LogIChat:", # Captures Legacy Chat
-                "LogTheIsleCommandData:" # Captures Evrima admin/rcon commands
+                "webhook_urls": {
+                    "LogTheIsleChatData": "https://discord.com/api/webhooks/chat_webhook_id/chat_webhook_token",
+                    "LogTheIsleKillData": "https://discord.com/api/webhooks/kill_webhook_id/kill_webhook_token",
+                    "LogTheIsleJoinData": "https://discord.com/api/webhooks/join_webhook_id/join_webhook_token",
+                    "Custom": ""
+                },
+                "features": {
+                    "LogTheIsleChatData": True,
+                    "LogTheIsleKillData": True,
+                    "LogTheIsleJoinData": True,
+                    "Custom": False
+                },
+                "refresh_rate": 1,
+                "capture_patterns": [
+                    "LogTheIsleChatData",
+                    "LogTheIsleKillData",
+                    "LogTheIsleJoinData",
+                    "Custom"
                 ]
             }
 ```
